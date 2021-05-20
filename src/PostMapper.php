@@ -26,6 +26,7 @@ class PostMapper
      * @param string $urlKey
      * @return array|null
      */
+
     public function getByUrlKey(string $urlKey): ?array{
         $statement = $this->connection->prepare('SELECT * FROM post where url_key = :url_key');
         $statement->execute(['url_key' => $urlKey]);
@@ -34,11 +35,21 @@ class PostMapper
         return  array_shift($result);
     }
 
-    public function getList(string $direction): ?array{
+    /**
+     * @param int $page
+     * @param int $limit
+     * @param string $direction
+     * @return array|null
+     * @throws Exception
+     */
+    public function getList(int $page = 1, int $limit = 2, string $direction = 'ASC'): ?array{
         if (!in_array($direction, ['DESC', 'ASC'])){
             throw new Exception('The direction is not supported.');
         }
-        $statement = $this->connection->prepare('select * from post order by published_date '.$direction);
+        $start = ($page - 1) * $limit;
+        $statement = $this->connection->prepare('select * from post order by post_id '.$direction
+        . ' LIMIT ' . $start . ', '. $limit
+        );
         $statement->execute();
         return $statement->fetchAll();
     }

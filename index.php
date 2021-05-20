@@ -1,6 +1,7 @@
 <?php
 
 use Blog\LatestPosts;
+use Blog\Slim\TwigMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
@@ -15,6 +16,8 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 $loader = new FilesystemLoader('templates');
 $view  = new Environment($loader);
+
+
 
 $config = include 'config/database.php';
 $dsn = $config['dsn'];
@@ -32,6 +35,9 @@ try {
 
 
 $app = AppFactory::create();
+
+$app->add(new TwigMiddleware($view));
+
 
 $app->get('/', function (Request $request, Response $response) use ($view, $connection) {
     $latestPosts = new LatestPosts($connection);
